@@ -1,13 +1,17 @@
 /* * * * * * * * * * * * * * * * * * * * * * * *
-html elements
+general
 * * * * * * * * * * * * * * * * * * * * * * * */
-* {
+*,
+::-webkit-input-placeholder,
+::-webkit-slider-thumb {
 	transition: all .2s ease-out;
 }
 body {
-	font-family: "Open Sans", sans-serif;
 	margin: 0;
 	color: #666;
+}
+body, input[type="text"] {
+	font-family: "Open Sans", sans-serif;
 }
 header {
 	background-color: #fff;
@@ -19,20 +23,172 @@ footer {
 	background-color: #666;
 	color: #fff;
 }
-#container {
-	font-size: 0;
-	display: flex;
-	align-items: stretch;
+footer a:hover {
+	background-color: #888;
+	color: inherit;
 }
-#container section {
-	width: calc(50% - 100px);
-	display: inline-block;
-	font-size: initial;
+section {
 	padding: 50px;
-	vertical-align: top;
+	width: calc(50% - 100px);
 }
 #right {
 	background-color: #ccc;
+	box-shadow: 5px 0px 20px #888 inset;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * *
+flex
+* * * * * * * * * * * * * * * * * * * * * * * */
+#container {
+	display: flex;  
+	flex-flow: column;
+	min-height: 100%;
+}
+#container > * {
+	flex: 0 1 auto;
+}
+#main {
+	display: flex;  
+	flex-flow: row;
+	flex: 1 auto;
+}
+#left, #right {
+	flex: 1 0 auto;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * *
+country controls
+* * * * * * * * * * * * * * * * * * * * * * * */
+.countryControls {
+	margin-bottom: 50px;
+}
+.countryControls h2 {
+	display: inline;
+}
+.countryControls h3 {
+	width: 100%;
+}
+.slider {
+	font-size: initial;
+	width: calc(45%);
+	display: inline-block;
+}
+.sliderContainer {
+	margin-top: 15px;
+}
+.slider:nth-of-type(1) {
+	margin-right: 5%;
+}
+.slider .bar {
+	-webkit-appearance: none;
+	width: 100%;
+	height: 5px;
+	margin: 15px 0;
+	background-color: #aaa;
+	cursor: pointer;
+}
+.slider .bar::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	width: 20px;
+	height: 20px;
+	border-radius: 100%;
+	background-color: #aaa;
+	cursor: pointer;
+}
+.slider .bar:focus {
+	outline: none;
+	background-color: #666;
+}
+.slider .bar:focus::-webkit-slider-thumb {
+	background-color: #666;
+}
+.slider .bar:hover::-webkit-slider-thumb {
+	background-color: #666;
+}
+.remove {
+	transform: rotateZ(45deg);
+}
+.population output::after {
+	margin-left: 5px;
+	font-size: 75%;
+	content: "million people";
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * *
+add/remove buttons
+* * * * * * * * * * * * * * * * * * * * * * * */
+.addRemove {
+	text-align: center;
+	width: 29px;
+	height: 29px;
+	font-size: 24px;
+	font-weight: bold;
+	color: #666;
+	border: none;
+	border-radius: 100%;
+	margin-right: 10px;
+	cursor: pointer;
+}
+.addRemove:hover {
+	background-color: #666;
+	color: #fff;
+}
+.addRemove:focus {
+	outline: none;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * *
+lock buttons
+* * * * * * * * * * * * * * * * * * * * * * * */
+.lock {
+	background: none;
+	cursor: pointer;
+	border: none;
+	font-size: inherit;
+	color: #aaa;
+	float: right;
+	padding: 0;
+	line-height: normal;
+}
+.lock:hover {
+	color: #666;
+}
+.lock:focus {
+	outline: none;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * *
+add a country
+* * * * * * * * * * * * * * * * * * * * * * * */
+#addCountry {
+	font-size: 0;
+}
+#addCountry input[type="text"] {
+	width: calc(100% - 40px);
+	font-size: 24px;
+	font-weight: bold;
+	color: #aaa;
+	border: none;
+	cursor: pointer;
+}
+#addCountry:hover input[type="text"], #addCountry input[type="text"]:focus {
+	color: #666;
+}
+#addCountry input[type="text"]:focus {
+	outline: none;
+}
+#addCountry input[type="text"]::-webkit-input-placeholder {
+	color: #aaa;
+}
+#addCountry:hover input[type="text"]::-webkit-input-placeholder {
+	color: #666;
+}
+#addCountry input[type="text"]:focus::-webkit-input-placeholder {
+	color: #fff;
+}
+#errorMessage {
+	font-weight: bold;
+	color: red;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * *
@@ -41,6 +197,10 @@ text elements
 h1, h2, h3, h4, h5, h6 {
 	padding: 0;
 	margin: 0;
+	width: 100%;
+}
+h3 {
+	font-weight: normal;
 }
 p {
 	margin: 0;
@@ -65,4 +225,3 @@ circle {
 /* * * * * * * * * * * * * * * * * * * * * * * *
 specific svg elements
 * * * * * * * * * * * * * * * * * * * * * * * */
-
