@@ -6,12 +6,40 @@ $(document).ready(function() {
 	populationLocked = false;
 	countryNames = [],
 	countryCodes = [];
+	color = d3.scale.category10();
+	colorIndex = 0;
+	lockedYear = 1960;
 
 	// find country codes/names
 	for(var i = 0; i < POPULATION.length; i++) {
 		countryNames.push(POPULATION[i].CountryName);
 		countryCodes.push(POPULATION[i].CountryCode);
 	}
+
+	// svg re-ordering
+	orderZ = function(elements) {
+		elements.sort(function(a, b) {
+			return parseInt($(b).attr("z")) - parseInt($(a).attr("z"));
+		});
+		for(var i = 0; i < elements.length; i++) {
+			d3.select(elements[i]).moveToFront();
+		}
+	}
+
+	// https://github.com/wbkd/d3-extended
+	d3.selection.prototype.moveToFront = function() {
+		return this.each(function(){
+			this.parentNode.appendChild(this);
+		});
+	};
+	d3.selection.prototype.moveToBack = function() {
+		return this.each(function() { 
+			var firstChild = this.parentNode.firstChild; 
+			if(firstChild) { 
+				this.parentNode.insertBefore(this, firstChild); 
+			}
+		});
+	};
 
 	// remove string from array
 	Array.prototype.removeString = function() {
@@ -40,30 +68,62 @@ $(document).ready(function() {
 
 	// change slider value pairs
 	setSlider = function(countryCode, isYear, value) {
+
+		// slider
 		var thisSlider = $("#" + countryCode + " ." + (isYear ? "year" : "population") + " .bar");
 		var siblingSlider = $("#" + countryCode + " ." + (!isYear ? "year" : "population") + " .bar");
 		thisSlider.val(value);
+		var year = 0;
+		var yearText = "";
 		if(isYear) {
 			var pop = Math.round(eval("POPULATION[getCountryIndex(countryCode)].year" + value) / 1000000);
 			siblingValue = pop;
+			year = thisSlider.val();
+			yearText = year;
 		} else {
-			var year = 2014;
+			year = 2014;
 			while(year >= 1960 && Math.round(eval("POPULATION[getCountryIndex(countryCode)].year" + year) / 1000000) > value) {
 				year -= 1;
 				if(year < 1960) {
-					year = "before 1960";
+					yearText = "before 1960";
+					year = 1960;
+					break;
+				} else {
+					yearText = year;
 				}
-				console.log(year);
 			}
 			if(year == 2014) {
-				console.log(year);
-				year = "maybe in the future";
+				yearText = "maybe in the future";
+				year = 2014;
 			}
-			siblingValue = year;
+			siblingValue = yearText;
+		}
+		if(yearLocked) {
+			lockedYear = year;
+		} else {
+			lockedYear = 1960;
 		}
 		siblingSlider.val(siblingValue);
 		$("#" + countryCode + "year").val(isYear ? value : siblingValue);
 		$("#" + countryCode + "population").val(!isYear ? value : siblingValue);
+
+		// circle
+		setCircle(countryCode, year);
+	}
+
+	// update circles
+	setCircle = function(countryCode, year) {
+		window.setTimeout(function() {
+			var index = getCountryIndex(countryCode);
+			var cx = eval("LIFE_EXPECTANCY[" + index + "].year" + year);
+			var cy = 100 - eval("(GDP[" + index + "].year" + year + "/ 600)");
+			var r = eval("(POPULATION[" + index + "].year" + year + " ^ .1) / 20000000");
+			r = Math.max(r, 2);
+			d3.select("#graph ." + countryCode)
+				.attr("cx", cx + "%")
+				.attr("cy", cy + "%")
+				.attr("r", r + "%");
+		}, 1);
 	}
 
 	// change all sliders
@@ -122,13 +182,13 @@ $(document).ready(function() {
 		// delete country controller
 		countryController.remove();
 		comparedCountries.removeString(country);
+
+		// delete circle
+		$("#graph ." + country).remove();
 	}
 
 	// add a country
 	addCountry = function(override) {
-
-		// add a random circle
-		makeCircle(Math.random() * 100, Math.random() * 100, Math.random() * 50);
 
 		// unfocus
 		$("#addCountry input[type='text']").blur();
@@ -162,6 +222,14 @@ $(document).ready(function() {
 				// add to array
 				comparedCountries.push(country);
 
+				// add circle
+				//NOTE: these are %
+				var cx = 0;
+				var cy = 100;
+				var r = 0;
+				var z = POPULATION[getCountryIndex(countryCode)].year2014;
+				makeCircle(cx, cy, r, z, countryCode);
+
 				// clear text input
 				$("#addCountry input[type='text']").val("");
 				$("#errorMessage").html("");
@@ -183,17 +251,19 @@ $(document).ready(function() {
 				// append to year slider
 				var yearSlider = $("#" + countryCode + " .year.slider");
 				yearSlider.append("<h3>Year<input class='lock material-icons' type='button' value='" + ((yearLocked)?"lock":"lock_open") + "' onclick='lockToggle(this)'></h3>");
-				yearSlider.append("<input class='bar' type='range' class='rangeinput' onchange='updateYear(" + countryCode + ".id,value)' value='1960' min='1960' max='2014'/>");
+				yearSlider.append("<input class='bar' type='range' class='rangeinput' oninput='updateYear(" + countryCode + ".id,value)' value='1960' min='1960' max='2014'/>");
 				yearSlider.append("<output id='" + yearID + "'>1960</output>");
 				
 				// append to population slider
 				var populationSlider = $("#" + countryCode + " .population.slider");
 				populationSlider.append("<h3>Population<input class='lock material-icons' type='button' value='" + ((populationLocked)?"lock":"lock_open") + "' onclick='lockToggle(this)'></h3>");
-				populationSlider.append("<input class='bar' type='range' class='rangeinput' onchange='updatePopulation(" + countryCode + ".id,value)' value='0' min='0' max='500'/>");
+				populationSlider.append("<input class='bar' type='range' class='rangeinput' oninput='updatePopulation(" + countryCode + ".id,value)' value='0' min='0' max='500'/>");
 				populationSlider.append("<output id='" + populationID + "'>0</output>");
 
 				// set values
-				setAllSliders($("#left:nth-child(1)").attr("id"));
+				setAllSliders($("#left div:nth-child(1)").attr("id"));
+				setCircle(countryCode, lockedYear);
+				orderZ($("#graph circle"));
 			}
 
 			// this country is already being compared
@@ -212,15 +282,28 @@ $(document).ready(function() {
 				$("#errorMessage").html("You have not entered a country we have data for.");
 			}
 		}
+
+		// set all sliders
+		setAllSliders(countryCode);
 	}
 
 	// draw circle
-	makeCircle = function(x, y, r) {
-		console.log("making circle...");
+	makeCircle = function(x, y, r, z, countryCode) {
 		d3.select("#graph").append("circle")
 			.attr("cx", x + "%")
 			.attr("cy", y + "%")
-			.attr("r", r + "%");
+			.attr("r", r + "%")
+			.attr("z", z)
+			.attr("class", countryCode)
+			.attr("fill", color(colorIndex));
+		$("head").append("<style>#" + countryCode + " h2 { color: " + color(colorIndex) + " }</stlye>");
+		colorIndex += 1;
+	}
+
+	// color bullshit
+	for(var i = 0; i < 0; i++) {
+		color(colorIndex);
+		colorIndex += 1;
 	}
 
 	// add some random countries to start

@@ -214,7 +214,7 @@ a:hover {
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * *
-generic svg elements
+svg elements
 * * * * * * * * * * * * * * * * * * * * * * * */
 .svgContainer {
 	position: relative;
@@ -238,10 +238,17 @@ text {
 	fill: #666;
 }
 circle {
-	fill: #666;
+	stroke: #ccc;
+	stroke-width: 5px;
+	cursor: pointer;
 }
-
-/* * * * * * * * * * * * * * * * * * * * * * * *
-specific svg elements
-* * * * * * * * * * * * * * * * * * * * * * * */
-
+circle:hover {
+	stroke: #eee;
+	stroke-width: 7px;
+}
+circle:hover::after {
+	content: "HEY!!!";
+	font-size: 10px;
+	color: red;
+	z-index: 1000000000000000000000000000000;
+}
