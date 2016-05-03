@@ -15,7 +15,9 @@ $(document).ready(function() {
 
 	// remove string from array
 	Array.prototype.removeString = function() {
-		var what, a = arguments, L = a.length, ax;
+		var what,
+			a = arguments,
+			L = a.length, ax;
 		while(L && this.length) {
 			what = a[--L];
 			while((ax = this.indexOf(what)) != -1) {
@@ -23,14 +25,17 @@ $(document).ready(function() {
 			}
 		}
 		return this;
-		}
+	}
 
-	// get country code/name
+	// get country code/name/index
 	getCountryCode = function(countryName) {
 		return POPULATION[$.inArray(countryName, countryNames)].CountryCode;
 	}
 	getCountryName = function(countryCode) {
 		return POPULATION[$.inArray(countryCode, countryCodes)].CountryName;
+	}
+	getCountryIndex = function(countryCode) {
+		return $.inArray(countryCode, countryCodes);
 	}
 
 	// change slider value pairs
@@ -38,7 +43,24 @@ $(document).ready(function() {
 		var thisSlider = $("#" + countryCode + " ." + (isYear ? "year" : "population") + " .bar");
 		var siblingSlider = $("#" + countryCode + " ." + (!isYear ? "year" : "population") + " .bar");
 		thisSlider.val(value);
-		siblingValue = 0; //TODO: set sibling value according to thisSlider value
+		if(isYear) {
+			var pop = Math.round(eval("POPULATION[getCountryIndex(countryCode)].year" + value) / 1000000);
+			siblingValue = pop;
+		} else {
+			var year = 2014;
+			while(year >= 1960 && Math.round(eval("POPULATION[getCountryIndex(countryCode)].year" + year) / 1000000) > value) {
+				year -= 1;
+				if(year < 1960) {
+					year = "before 1960";
+				}
+				console.log(year);
+			}
+			if(year == 2014) {
+				console.log(year);
+				year = "maybe in the future";
+			}
+			siblingValue = year;
+		}
 		siblingSlider.val(siblingValue);
 		$("#" + countryCode + "year").val(isYear ? value : siblingValue);
 		$("#" + countryCode + "population").val(!isYear ? value : siblingValue);
@@ -57,10 +79,12 @@ $(document).ready(function() {
 	// update slider value displays
 	updateYear = function(countryCode, value) {
 		$("#" + countryCode + "year").val(value);
+		setSlider(countryCode, true, value);
 		setAllSliders(countryCode);
 	}
 	updatePopulation = function(countryCode, value) {
 		$("#" + countryCode + "population").val(value);
+		setSlider(countryCode, false, value);
 		setAllSliders(countryCode);
 	}
 
@@ -102,6 +126,9 @@ $(document).ready(function() {
 
 	// add a country
 	addCountry = function(override) {
+
+		// add a random circle
+		makeCircle(Math.random() * 100, Math.random() * 100, Math.random() * 50);
 
 		// unfocus
 		$("#addCountry input[type='text']").blur();
@@ -154,17 +181,15 @@ $(document).ready(function() {
 				sliderContainer.append("<div class='population slider'></div>");
 				
 				// append to year slider
-				//TODO: set open or closed depending
 				var yearSlider = $("#" + countryCode + " .year.slider");
 				yearSlider.append("<h3>Year<input class='lock material-icons' type='button' value='" + ((yearLocked)?"lock":"lock_open") + "' onclick='lockToggle(this)'></h3>");
 				yearSlider.append("<input class='bar' type='range' class='rangeinput' onchange='updateYear(" + countryCode + ".id,value)' value='1960' min='1960' max='2014'/>");
 				yearSlider.append("<output id='" + yearID + "'>1960</output>");
 				
 				// append to population slider
-				//TODO: set open or closed depending
 				var populationSlider = $("#" + countryCode + " .population.slider");
 				populationSlider.append("<h3>Population<input class='lock material-icons' type='button' value='" + ((populationLocked)?"lock":"lock_open") + "' onclick='lockToggle(this)'></h3>");
-				populationSlider.append("<input class='bar' type='range' class='rangeinput' onchange='updatePopulation(" + countryCode + ".id,value)' value='0' min='0' max='1365'/>");
+				populationSlider.append("<input class='bar' type='range' class='rangeinput' onchange='updatePopulation(" + countryCode + ".id,value)' value='0' min='0' max='500'/>");
 				populationSlider.append("<output id='" + populationID + "'>0</output>");
 
 				// set values
@@ -187,6 +212,15 @@ $(document).ready(function() {
 				$("#errorMessage").html("You have not entered a country we have data for.");
 			}
 		}
+	}
+
+	// draw circle
+	makeCircle = function(x, y, r) {
+		console.log("making circle...");
+		d3.select("#graph").append("circle")
+			.attr("cx", x + "%")
+			.attr("cy", y + "%")
+			.attr("r", r + "%");
 	}
 
 	// add some random countries to start

@@ -14,6 +14,7 @@
 
 	<!-- scripts and links -->
 	<script src='assets/data/population.json'></script>
+	<script src='assets/data/gdpPerCapita.json'></script>
 	<script src='assets/scripts/main.js'></script>
 	<link rel='stylesheet' type='text/css' href='assets/styles/main.css'>
 </head>
@@ -32,7 +33,10 @@
 			<p id='errorMessage'></p>
 		</section>
 		<section id='right'>
-			<p class='material-icons'>add_circle delete lock lock_open</p>
+			<div class="svgContainer">
+				<svg id="graph">
+				</svg>
+			</div>
 		</section>
 	</div>
 	<footer>
