@@ -9,7 +9,9 @@ general
 body {
 	margin: 0;
 	color: #666;
-	min-width: 720px;
+	min-width: 400px;
+	overflow-x: hidden;
+	overflow: overlay;
 }
 body, input[type="text"] {
 	font-family: "Open Sans", sans-serif;
@@ -28,13 +30,32 @@ footer a:hover {
 	background-color: #888;
 	color: inherit;
 }
-section {
-	padding: 50px;
-	width: calc(50% - 100px);
+#left {
+	padding: 25px;
+	width: calc(50% - 50px);
 }
 #right {
+	padding: 50px;
+	width: calc(50% - 100px);
 	background-color: #ccc;
 	box-shadow: 5px 0px 20px #888 inset;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * *
+scrollbar
+* * * * * * * * * * * * * * * * * * * * * * * */
+::-webkit-scrollbar {
+	width: 14px;
+	position: absolute;
+}
+::-webkit-scrollbar-thumb {
+	border-radius: 20px;
+	background-color: #ccc;
+	border: 3px solid rgba(0, 0, 0, 0);
+	background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+	background-color: #aaa;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * *
@@ -61,7 +82,7 @@ flex
 country controls
 * * * * * * * * * * * * * * * * * * * * * * * */
 .countryControls {
-	margin-bottom: 50px;
+	padding: 25px;
 }
 .countryControls h2 {
 	display: inline;
@@ -114,6 +135,12 @@ country controls
 	font-size: 75%;
 	content: "million people";
 }
+.minimized, .minimized * {
+	height: 0;
+	padding-bottom: 0;
+	padding-top: 0;
+	opacity: 0;
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * *
 add/remove buttons
@@ -162,6 +189,7 @@ lock buttons
 add a country
 * * * * * * * * * * * * * * * * * * * * * * * */
 #addCountry {
+	padding: 25px;
 	font-size: 0;
 }
 #addCountry input[type="text"] {
@@ -242,13 +270,37 @@ circle {
 	stroke-width: 5px;
 	cursor: pointer;
 }
-circle:hover {
+
+/* * * * * * * * * * * * * * * * * * * * * * * *
+hover pairs
+* * * * * * * * * * * * * * * * * * * * * * * */
+circle:hover, circle.hoverPair {
 	stroke: #eee;
 	stroke-width: 7px;
 }
-circle:hover::after {
-	content: "HEY!!!";
-	font-size: 10px;
-	color: red;
-	z-index: 1000000000000000000000000000000;
+.countryControls:hover, .countryControls.hoverPair {
+	background-color: #f6f6f6;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * *
+media queries
+* * * * * * * * * * * * * * * * * * * * * * * */
+@media screen and (max-width: 720px) {
+	header {
+		padding: 50px 6vw;
+	}
+	#left {
+		padding: 25px 3vw;
+		width: calc(100% - 6vw);
+	}
+	#right {
+		padding: 50px 6vw;
+		width: calc(100% - 12vw);
+	}
+	.svgContainer {
+		max-width: 800px;
+	}
+	#main {  
+		flex-flow: column-reverse;
+	}
 }

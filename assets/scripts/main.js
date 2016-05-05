@@ -179,12 +179,16 @@ $(document).ready(function() {
 		// debug log
 		console.log("remove this country: " + country);
 
-		// delete country controller
-		countryController.remove();
-		comparedCountries.removeString(country);
+		// start animations
+		d3.select("#graph ." + country).attr("r", 0);
+		$(countryController).toggleClass("minimized", true);
 
-		// delete circle
-		$("#graph ." + country).remove();
+		// delete objects from DOM
+		window.setTimeout(function() {
+			$("#graph ." + country).remove();
+			countryController.remove();
+			comparedCountries.removeString(country);
+		}, 250);
 	}
 
 	// add a country
@@ -264,6 +268,12 @@ $(document).ready(function() {
 				setAllSliders($("#left div:nth-child(1)").attr("id"));
 				setCircle(countryCode, lockedYear);
 				orderZ($("#graph circle"));
+
+				// animate in
+				$(countryController).toggleClass("minimized", true);
+				window.setTimeout(function() {
+					$(countryController).toggleClass("minimized", false);
+				}, 0);
 			}
 
 			// this country is already being compared
@@ -299,6 +309,28 @@ $(document).ready(function() {
 		$("head").append("<style>#" + countryCode + " h2 { color: " + color(colorIndex) + " }</stlye>");
 		colorIndex += 1;
 	}
+
+	// hover pairs
+	$(document).on("mouseenter", ".countryControls, circle", function() {
+		countryCode = "";
+		if($(this).hasClass("countryControls")) {
+			countryCode = $(this).attr("id");
+			$("circle." + countryCode).toggleClass("hoverPair", true);
+		} else {
+			countryCode = $(this).attr("class");
+			$("#" + countryCode).toggleClass("hoverPair", true);
+		}
+	});
+	$(document).on("mouseleave", ".countryControls, circle", function() {
+		countryCode = "";
+		if($(this).hasClass("countryControls")) {
+			countryCode = $(this).attr("id");
+			$("circle." + countryCode).toggleClass("hoverPair", false);
+		} else {
+			countryCode = $(this).attr("class");
+			$("#" + countryCode).toggleClass("hoverPair", false);
+		}
+	});
 
 	// color bullshit
 	for(var i = 0; i < 0; i++) {
